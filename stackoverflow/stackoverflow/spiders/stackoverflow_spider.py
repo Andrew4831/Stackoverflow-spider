@@ -145,7 +145,7 @@ class StackoverflowSpider(scrapy.Spider):
         # print(question_user_url)
         if item['question_asked_uid'] not in self.users_list:
             yield scrapy.Request(question_user_url, callback=self.parse_users_detail,
-                                 meta={"uid": item['question_asked_uid'], "uname": question_uname})
+                                 meta={"uid": item['question_asked_uid'], "uname": question_uname,"page":page})
         else:
             print('本question的用户{}---{}已存在！跳过'.format(item['question_asked_uid'],question_uname))
 
@@ -158,7 +158,7 @@ class StackoverflowSpider(scrapy.Spider):
                 'div[3]/div[1]/div[2]/div[2]/div[1]//p//text() | div[3]/div[1]/div[2]/div[2]/div[1]//ul//text()').extract())
 
         self.process_data(dict(item), self.question_file_path)
-        print('问题 +++ 增加{}---{}问题，目前共爬取{}个问题'.format(item['qid'], item['question_title'], item['index']))
+        print('第{}页 +++ 问题 +++ 增加{}---{}问题，目前共爬取{}个问题'.format(page, item['qid'],item['question_title'], item['index']))
         # yield item
 
         remain_count = "".join(
@@ -188,7 +188,7 @@ class StackoverflowSpider(scrapy.Spider):
             # print(comment_user_url)
             if comment['comment_uid'] not in self.users_list:
                 yield scrapy.Request(comment_user_url, callback=self.parse_users_detail,
-                                     meta={"uid": comment['comment_uid'], "uname": comment_uname})
+                                     meta={"uid": comment['comment_uid'], "uname": comment_uname,"page":page})
             else:
                 print('本comment1的用户{}---{}已存在！跳过'.format(comment['comment_uid'],comment_uname))
 
@@ -198,7 +198,7 @@ class StackoverflowSpider(scrapy.Spider):
             comment['comment_body'] = "".join(com.xpath('div[2]/div[1]/span[1]//text()').extract())
 
             self.process_data(dict(comment), self.comment_file_path)
-            print('评论1 +++ 增加{}，这是{}问题下的评论，目前共爬取{}个评论'.format(comment['cid'], comment['comment_qid'], comment['index']))
+            print('第{}页 +++ 评论1 +++ 增加{}，这是{}问题下的评论，目前共爬取{}个评论'.format(page, comment['cid'], comment['comment_qid'], comment['index']))
             # yield comment
 
         # answer
@@ -224,7 +224,7 @@ class StackoverflowSpider(scrapy.Spider):
             answer['answer_date'] = "".join(
                 data.xpath('div[1]/div[2]/div[2]/div[1]/div[3]/div[1]/div[1]/span/@title').extract())[:-1]
             self.process_data(dict(answer), self.answer_file_path)
-            print('回答 +++ 增加{}，这是{}问题的回答，目前共爬取{}个回答'.format(answer['aid'], answer['answer_qid'], answer['index']))
+            print('第{}页 +++ 回答 +++ 增加{}，这是{}问题的回答，目前共爬取{}个回答'.format(page, answer['aid'], answer['answer_qid'], answer['index']))
 
             ############################################
             #                   user
@@ -235,7 +235,7 @@ class StackoverflowSpider(scrapy.Spider):
             # print(answer_user_url)
             if answer['answer_uid'] not in self.users_list:
                 yield scrapy.Request(answer_user_url, callback=self.parse_users_detail,
-                                     meta={"uid": answer['answer_uid'], "uname": answer_uname})
+                                     meta={"uid": answer['answer_uid'], "uname": answer_uname,"page":page})
             else:
                 print('本answer的用户{}---{}已存在！跳过'.format(answer['answer_uid'],answer_uname))
 
@@ -258,7 +258,7 @@ class StackoverflowSpider(scrapy.Spider):
                     data2.xpath('div[2]/div[1]/span[2]/span/@title').extract()).split(',')[0][:-1]
                 comment2['comment_body'] = "".join(data2.xpath('div[2]/div[1]/span[1]//text()').extract())
                 self.process_data(dict(comment2), self.comment_file_path)
-                print('评论2 +++ 增加{}，这是{}回答下的评论，目前共爬取{}个评论'.format(comment2['cid'], comment2['comment_aid'], comment2['index']))
+                print('第{}页 +++ 评论2 +++ 增加{}，这是{}回答下的评论，目前共爬取{}个评论'.format(page, comment2['cid'], comment2['comment_aid'], comment2['index']))
 
                 ############################################
                 #                   user
@@ -269,13 +269,14 @@ class StackoverflowSpider(scrapy.Spider):
                 # print(comment2_user_url)
                 if comment2['comment_uid'] not in self.users_list:
                     yield scrapy.Request(comment2_user_url, callback=self.parse_users_detail,
-                                         meta={"uid": comment2['comment_uid'], "uname": comment2_uname})
+                                         meta={"uid": comment2['comment_uid'], "uname": comment2_uname,"page":page})
                 else:
                     print('本comment2的用户{}---{}已存在！跳过'.format(comment2['comment_uid'],comment2_uname))
 
     def parse_users_detail(self, response):
         uid = response.meta["uid"]
         uname = response.meta["uname"]
+        page = response.meta["page"]
         if uid in self.users_list:
             return
 
@@ -293,7 +294,7 @@ class StackoverflowSpider(scrapy.Spider):
         user['u_tag'] = top_tags_str
 
         self.users_list.append(uid)
-        print('用户 +++ 增加{}---{}用户，目前共爬取{}名用户'.format(user['uid'],user['uname'],user['index']))
+        print('第{}页 +++ 用户 +++ 增加{}---{}用户，目前共爬取{}名用户'.format(page, user['uid'],user['uname'],user['index']))
         self.process_data(dict(user), self.user_file_path)
 
     def spider_closed(self, spider):
