@@ -198,7 +198,7 @@ class StackoverflowSpider(scrapy.Spider):
             comment['comment_body'] = "".join(com.xpath('div[2]/div[1]/span[1]//text()').extract())
 
             self.process_data(dict(comment), self.comment_file_path)
-            print('第{}页 +++ 评论1 +++ 增加{}，这是{}问题下的评论，目前共爬取{}个评论'.format(page, comment['cid'], comment['comment_qid'], comment['index']))
+            # print('第{}页 +++ 评论1 +++ 增加{}，这是{}问题下的评论，目前共爬取{}个评论'.format(page, comment['cid'], comment['comment_qid'], comment['index']))
             # yield comment
 
         # answer
@@ -224,7 +224,7 @@ class StackoverflowSpider(scrapy.Spider):
             answer['answer_date'] = "".join(
                 data.xpath('div[1]/div[2]/div[2]/div[1]/div[3]/div[1]/div[1]/span/@title').extract())[:-1]
             self.process_data(dict(answer), self.answer_file_path)
-            print('第{}页 +++ 回答 +++ 增加{}，这是{}问题的回答，目前共爬取{}个回答'.format(page, answer['aid'], answer['answer_qid'], answer['index']))
+            # print('第{}页 +++ 回答 +++ 增加{}，这是{}问题的回答，目前共爬取{}个回答'.format(page, answer['aid'], answer['answer_qid'], answer['index']))
 
             ############################################
             #                   user
@@ -258,7 +258,7 @@ class StackoverflowSpider(scrapy.Spider):
                     data2.xpath('div[2]/div[1]/span[2]/span/@title').extract()).split(',')[0][:-1]
                 comment2['comment_body'] = "".join(data2.xpath('div[2]/div[1]/span[1]//text()').extract())
                 self.process_data(dict(comment2), self.comment_file_path)
-                print('第{}页 +++ 评论2 +++ 增加{}，这是{}回答下的评论，目前共爬取{}个评论'.format(page, comment2['cid'], comment2['comment_aid'], comment2['index']))
+                # print('第{}页 +++ 评论2 +++ 增加{}，这是{}回答下的评论，目前共爬取{}个评论'.format(page, comment2['cid'], comment2['comment_aid'], comment2['index']))
 
                 ############################################
                 #                   user
